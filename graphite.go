@@ -66,46 +66,46 @@ func graphite(c *GraphiteConfig) error {
 	c.Registry.Each(func(name string, i interface{}) {
 		switch metric := i.(type) {
 		case metrics.Counter:
-			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, metric.Count(), now)
+			fmt.Fprintf(w, ExportFormats.Counter, c.Prefix, name, metric.Count(), now)
 		case metrics.Gauge:
-			fmt.Fprintf(w, "%s.%s.value %d %d\n", c.Prefix, name, metric.Value(), now)
+			fmt.Fprintf(w, ExportFormats.Gauge, c.Prefix, name, metric.Value(), now)
 		case metrics.GaugeFloat64:
-			fmt.Fprintf(w, "%s.%s.value %f %d\n", c.Prefix, name, metric.Value(), now)
+			fmt.Fprintf(w, ExportFormats.GaugeFloat64, c.Prefix, name, metric.Value(), now)
 		case metrics.Histogram:
 			h := metric.Snapshot()
 			ps := h.Percentiles(c.Percentiles)
-			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, h.Count(), now)
-			fmt.Fprintf(w, "%s.%s.min %d %d\n", c.Prefix, name, h.Min(), now)
-			fmt.Fprintf(w, "%s.%s.max %d %d\n", c.Prefix, name, h.Max(), now)
-			fmt.Fprintf(w, "%s.%s.mean %.2f %d\n", c.Prefix, name, h.Mean(), now)
-			fmt.Fprintf(w, "%s.%s.std-dev %.2f %d\n", c.Prefix, name, h.StdDev(), now)
+			fmt.Fprintf(w, ExportFormats.HistogramCount, c.Prefix, name, h.Count(), now)
+			fmt.Fprintf(w, ExportFormats.Min, c.Prefix, name, h.Min(), now)
+			fmt.Fprintf(w, ExportFormats.Max, c.Prefix, name, h.Max(), now)
+			fmt.Fprintf(w, ExportFormats.Mean, c.Prefix, name, h.Mean(), now)
+			fmt.Fprintf(w, ExportFormats.Stddev, c.Prefix, name, h.StdDev(), now)
 			for psIdx, psKey := range c.Percentiles {
 				key := strings.Replace(strconv.FormatFloat(psKey*100.0, 'f', -1, 64), ".", "", 1)
-				fmt.Fprintf(w, "%s.%s.%s-percentile %.2f %d\n", c.Prefix, name, key, ps[psIdx], now)
+				fmt.Fprintf(w, ExportFormats.Percentile, c.Prefix, name, key, ps[psIdx], now)
 			}
 		case metrics.Meter:
 			m := metric.Snapshot()
-			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, m.Count(), now)
-			fmt.Fprintf(w, "%s.%s.one-minute %.2f %d\n", c.Prefix, name, m.Rate1(), now)
-			fmt.Fprintf(w, "%s.%s.five-minute %.2f %d\n", c.Prefix, name, m.Rate5(), now)
-			fmt.Fprintf(w, "%s.%s.fifteen-minute %.2f %d\n", c.Prefix, name, m.Rate15(), now)
-			fmt.Fprintf(w, "%s.%s.mean %.2f %d\n", c.Prefix, name, m.RateMean(), now)
+			fmt.Fprintf(w, ExportFormats.HistogramCount, c.Prefix, name, m.Count(), now)
+			fmt.Fprintf(w, ExportFormats.Rate1, c.Prefix, name, m.Rate1(), now)
+			fmt.Fprintf(w, ExportFormats.Rate5, c.Prefix, name, m.Rate5(), now)
+			fmt.Fprintf(w, ExportFormats.Rate15, c.Prefix, name, m.Rate15(), now)
+			fmt.Fprintf(w, ExportFormats.Mean, c.Prefix, name, m.RateMean(), now)
 		case metrics.Timer:
 			t := metric.Snapshot()
 			ps := t.Percentiles(c.Percentiles)
-			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, t.Count(), now)
-			fmt.Fprintf(w, "%s.%s.min %d %d\n", c.Prefix, name, t.Min()/int64(du), now)
-			fmt.Fprintf(w, "%s.%s.max %d %d\n", c.Prefix, name, t.Max()/int64(du), now)
-			fmt.Fprintf(w, "%s.%s.mean %.2f %d\n", c.Prefix, name, t.Mean()/du, now)
-			fmt.Fprintf(w, "%s.%s.std-dev %.2f %d\n", c.Prefix, name, t.StdDev()/du, now)
+			fmt.Fprintf(w, ExportFormats.HistogramCount, c.Prefix, name, t.Count(), now)
+			fmt.Fprintf(w, ExportFormats.Min, c.Prefix, name, t.Min()/int64(du), now)
+			fmt.Fprintf(w, ExportFormats.Max, c.Prefix, name, t.Max()/int64(du), now)
+			fmt.Fprintf(w, ExportFormats.Mean, c.Prefix, name, t.Mean()/du, now)
+			fmt.Fprintf(w, ExportFormats.Stddev, c.Prefix, name, t.StdDev()/du, now)
 			for psIdx, psKey := range c.Percentiles {
 				key := strings.Replace(strconv.FormatFloat(psKey*100.0, 'f', -1, 64), ".", "", 1)
-				fmt.Fprintf(w, "%s.%s.%s-percentile %.2f %d\n", c.Prefix, name, key, ps[psIdx]/du, now)
+				fmt.Fprintf(w, ExportFormats.Percentile, c.Prefix, name, key, ps[psIdx]/du, now)
 			}
-			fmt.Fprintf(w, "%s.%s.one-minute %.2f %d\n", c.Prefix, name, t.Rate1(), now)
-			fmt.Fprintf(w, "%s.%s.five-minute %.2f %d\n", c.Prefix, name, t.Rate5(), now)
-			fmt.Fprintf(w, "%s.%s.fifteen-minute %.2f %d\n", c.Prefix, name, t.Rate15(), now)
-			fmt.Fprintf(w, "%s.%s.mean-rate %.2f %d\n", c.Prefix, name, t.RateMean(), now)
+			fmt.Fprintf(w, ExportFormats.Rate1, c.Prefix, name, t.Rate1(), now)
+			fmt.Fprintf(w, ExportFormats.Rate5, c.Prefix, name, t.Rate5(), now)
+			fmt.Fprintf(w, ExportFormats.Rate15, c.Prefix, name, t.Rate15(), now)
+			fmt.Fprintf(w, ExportFormats.Mean, c.Prefix, name, t.RateMean(), now)
 		}
 		w.Flush()
 	})

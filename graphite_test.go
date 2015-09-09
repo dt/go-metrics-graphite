@@ -122,4 +122,29 @@ func TestWrites(t *testing.T) {
 	if expected, found := 3000.0, res["foobar.baz.50-percentile"]; !floatEquals(found, expected) {
 		t.Fatal("bad value:", expected, found)
 	}
+
+	ExportFormats = OstrichFormats
+
+	for k, _ := range res {
+		delete(res, k)
+	}
+	wg.Add(1)
+	GraphiteOnce(c)
+	wg.Wait()
+
+	if expected, found := 0.0, res["foobar.baz.99-percentile"]; !floatEquals(found, expected) {
+		t.Fatal("bad value:", expected, found)
+	}
+
+	if expected, found := 0.0, res["foobar.baz.50-percentile"]; !floatEquals(found, expected) {
+		t.Fatal("bad value:", expected, found)
+	}
+
+	if expected, found := 5000.0, res["foobar.baz.percentiles.p99"]; !floatEquals(found, expected) {
+		t.Fatal("bad value:", expected, found)
+	}
+
+	if expected, found := 3000.0, res["foobar.baz.percentiles.p50"]; !floatEquals(found, expected) {
+		t.Fatal("bad value:", expected, found)
+	}
 }
