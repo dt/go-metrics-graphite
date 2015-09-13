@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rcrowley/go-metrics"
+	"github.com/dt/go-metrics"
 )
 
 // GraphiteConfig provides a container with configuration parameters for
@@ -106,6 +106,8 @@ func graphite(c *GraphiteConfig) error {
 			fmt.Fprintf(w, ExportFormats.Rate5, c.Prefix, name, t.Rate5(), now)
 			fmt.Fprintf(w, ExportFormats.Rate15, c.Prefix, name, t.Rate15(), now)
 			fmt.Fprintf(w, ExportFormats.Mean, c.Prefix, name, t.RateMean(), now)
+		default:
+			log.Printf("Cannot export unknown metric type %T for '%s'\n", i, name)
 		}
 		w.Flush()
 	})
